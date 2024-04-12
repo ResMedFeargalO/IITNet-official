@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from .resnet import ResNetFeature
+from .deepsleepnet import DeepSleepNetFeature
+from .TinySleepNet import TinySleepNetFeature
 
 class MainModel(nn.Module):
     
@@ -11,7 +13,7 @@ class MainModel(nn.Module):
         super(MainModel, self).__init__()
 
         self.config = config
-        self.feature = ResNetFeature(config)
+        self.feature = TinySleepNetFeature(config) #ResNetFeature(config)  ResNetFeature(config)
         self.classifier = PlainLSTM(config, hidden_dim=config['hidden_dim'], num_classes=config['num_classes'])
 
     def forward(self, x):
@@ -25,15 +27,17 @@ class PlainLSTM(nn.Module):
         super(PlainLSTM, self).__init__()
         self.config = config
         self.hidden_dim = hidden_dim
-        self.num_layers = 2
+        self.num_layers = 1
         self.num_classes = num_classes
         self.bidirectional = config['bidirectional']
 
-        self.input_dim = 128
+        self.input_dim = 15#128
 
         # architecture
+        #self.lstm = nn.LSTM(self.input_dim, self.hidden_dim, batch_first=True, num_layers=self.num_layers, bidirectional=config['bidirectional'])
         self.lstm = nn.LSTM(self.input_dim, self.hidden_dim, batch_first=True, num_layers=self.num_layers, bidirectional=config['bidirectional'])
-        self.fc = nn.Linear(self.hidden_dim * 2, self.num_classes)
+        #self.fc = nn.Linear(self.hidden_dim * 2, self.num_classes)
+        self.fc = nn.Linear(self.hidden_dim, self.num_classes)
 
     def init_hidden(self, x):
         h0 = torch.zeros((self.num_layers * (2 if self.bidirectional else 1), x.size(0), self.hidden_dim)).cuda()

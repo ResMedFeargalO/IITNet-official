@@ -14,6 +14,10 @@ from utils import *
 from models.main_models import *
 from loader import EEGDataLoader
 
+from torch.utils.tensorboard import SummaryWriter
+
+
+writer = SummaryWriter()
 
 class OneFoldTrainer:
     def __init__(self, args, fold, config):
@@ -78,8 +82,11 @@ class OneFoldTrainer:
             progress_bar(i, len(self.loader_dict['train']), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                     % (train_loss / (i + 1), 100. * correct / total, correct, total))
             
+        writer.add_scalar('Accuracy/Train', 100. * correct / total, epoch)
+        writer.add_scalar('Loss/Train', train_loss / (i + 1), epoch)
+            
     @torch.no_grad()
-    def evaluate(self, mode):
+    def evaluate(self, mode, epoch=0):
         self.model.eval()
         correct, total, eval_loss = 0, 0, 0
         y_true = np.zeros(0)
@@ -102,8 +109,12 @@ class OneFoldTrainer:
 
             progress_bar(i, len(self.loader_dict[mode]), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                     % (eval_loss / (i + 1), 100. * correct / total, correct, total))
+            
+
 
         if mode == 'val':
+            writer.add_scalar('Accuracy/Val', 100. * correct / total, epoch)
+            writer.add_scalar('Loss/Val', eval_loss / (i + 1), epoch)
             return 100. * correct / total, eval_loss
         elif mode == 'test':
             return y_true, y_pred
@@ -115,7 +126,7 @@ class OneFoldTrainer:
             for epoch in range(self.config['max_epochs']):
                 print('\n[INFO] Fold: {}, Epoch: {}'.format(self.fold, epoch))
                 self.train_one_epoch(epoch)
-                val_acc, val_loss = self.evaluate(mode='val')
+                val_acc, val_loss = self.evaluate(mode='val', epoch=epoch)
                 self.early_stopping(val_acc, val_loss, self.model)
                 if self.early_stopping.early_stop:
                     break

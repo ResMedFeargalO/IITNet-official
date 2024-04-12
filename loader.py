@@ -3,7 +3,38 @@ import torch
 import numpy as np
 from torch.utils.data import Dataset
 
+from scipy.signal import butter, sosfilt
 
+def fast_resample(xf,fs_out,fs_in):
+	#start_time = time.time()
+	if fs_in!=fs_out:    	
+        
+		ti = np.arange(0,(len(xf))/fs_in,1/fs_in)
+		to = np.arange(0,(len(xf))/fs_in,1/fs_out)
+        
+		if(len(ti) != len(xf)):
+			ti = ti[0:len(xf)]
+            
+		y = np.interp(to, ti, xf)  
+
+	else:
+		y = xf
+	#print("---%s seconds for resample---"%(time.time()-start_time))
+	return y
+
+def filter_down(eeg_data, lowcut=.05, highcut=25, order=50, sample_in=100, sample_out=32):
+
+    # Calculate the Nyquist frequency
+    nyquist_freq = 0.5 * sample_in
+
+    # Calculate the filter coefficients
+    sos = butter(order, [lowcut / nyquist_freq, highcut / nyquist_freq], btype='bandpass', output='sos')
+
+    # Apply the filter to the EEG data
+    filtered_eeg = sosfilt(sos, eeg_data)
+
+    #fandd=fast_resample(filtered_eeg, fs_out=sample_in, fs_in=sample_out)
+    return filtered_eeg #fandd
 class EEGDataLoader(Dataset):
 
     def __init__(self, config, fold, mode='train'):
@@ -28,9 +59,9 @@ class EEGDataLoader(Dataset):
     def __getitem__(self, idx):
         n_sample = 30 * self.sampling_rate * self.seq_len
         file_idx, idx, seq_len = self.epochs[idx]
-        inputs = self.inputs[file_idx][idx:idx+seq_len]
-
-        #inputs = inputs.reshape(1, n_sample)
+        inputs = self.inputs[file_idx][idx:idx+seq_len][::2]
+        inputs=filter_down(inputs.reshape(-1,))
+        inputs = inputs.reshape(1, n_sample)
         inputs = torch.from_numpy(inputs).float()
         
         labels = self.labels[file_idx][idx:idx+seq_len]

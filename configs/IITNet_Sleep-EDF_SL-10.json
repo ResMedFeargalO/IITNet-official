@@ -2,7 +2,7 @@
     "max_epochs": 500,
     "dataset": "Sleep-EDF",
     "signal_type": "Fpz-Cz",
-    "sampling_rate": 100,
+    "sampling_rate": 32,
     "seq_len": 10,
     "target_idx": -1,
     "n_splits": 20,

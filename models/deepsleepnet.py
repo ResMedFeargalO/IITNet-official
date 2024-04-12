@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from .utils import Conv1d, MaxPool1d
+from torch.nn import Conv1d, MaxPool1d,Conv2d
 
 
 class DeepSleepNetFeature(nn.Module):
@@ -13,37 +13,37 @@ class DeepSleepNetFeature(nn.Module):
         self.config = config
         self.ReLU = nn.ReLU()
         self.dropout = nn.Dropout(p=dropout)
-        self.path1 = nn.Sequential(Conv1d(1, self.chn, 50, 6, padding='SAME', bias=False),
+        self.path1 = nn.Sequential(Conv1d(1, self.chn, 50, 6, bias=False),
                                    nn.BatchNorm1d(self.chn),
                                    nn.ReLU(),
-                                   MaxPool1d(8, padding='SAME'),
+                                   MaxPool1d(8),
                                    nn.Dropout(),
-                                   Conv1d(self.chn, self.chn*2, 8, 1, padding='SAME', bias=False),
+                                   Conv1d(self.chn, self.chn*2, 8, 1, bias=False),
                                    nn.BatchNorm1d(self.chn*2),
                                    nn.ReLU(),
-                                   Conv1d(self.chn*2, self.chn*2, 8, 1, padding='SAME', bias=False),
+                                   Conv1d(self.chn*2, self.chn*2, 8, 1, bias=False),
                                    nn.BatchNorm1d(self.chn * 2),
                                    nn.ReLU(),
-                                   Conv1d(self.chn*2, self.chn*2, 8, 1, padding='SAME', bias=False),
+                                   Conv1d(self.chn*2, self.chn*2, 8, 1, bias=False),
                                    nn.BatchNorm1d(self.chn*2),
                                    nn.ReLU(),
-                                   MaxPool1d(4, padding='SAME')
+                                   MaxPool1d(4)
                                    )
-        self.path2 = nn.Sequential(Conv1d(1, self.chn, 400, 50, padding='SAME', bias=False),
+        self.path2 = nn.Sequential(Conv1d(1, self.chn, 400, 50, bias=False),
                                    nn.BatchNorm1d(self.chn),
                                    nn.ReLU(),
-                                   MaxPool1d(4, padding='SAME'),
+                                   MaxPool1d(4),
                                    nn.Dropout(),
-                                   Conv1d(self.chn, self.chn*2, 8, 1, padding='SAME', bias=False),
+                                   Conv1d(self.chn, self.chn*2, 8, 1, bias=False),
                                    nn.BatchNorm1d(self.chn*2),
                                    nn.ReLU(),
-                                   Conv1d(self.chn*2, self.chn*2, 8, 1, padding='SAME', bias=False),
+                                   Conv1d(self.chn*2, self.chn*2, 8, 1, bias=False),
                                    nn.BatchNorm1d(self.chn * 2),
                                    nn.ReLU(),
-                                   Conv1d(self.chn*2, self.chn*2, 8, 1, padding='SAME', bias=False),
+                                   Conv1d(self.chn*2, self.chn*2, 8, 1, bias=False),
                                    nn.BatchNorm1d(self.chn*2),
                                    nn.ReLU(),
-                                   MaxPool1d(2, padding='SAME'))
+                                   MaxPool1d(2))
         
         if config['init_weights']:
             self._initialize_weights()
@@ -70,7 +70,7 @@ class DeepSleepNetFeature(nn.Module):
             x2 = torch.nn.functional.interpolate(x2, x1.size(2))
             x = self.dropout(self.smooth(self.compress(torch.cat([x1, x2], dim=1))))
 
-            return [x]
+            return x
         
         elif self.config['n_anchor'] == 2:
 

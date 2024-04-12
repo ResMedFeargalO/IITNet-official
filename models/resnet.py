@@ -95,7 +95,7 @@ class ResNetFeature(nn.Module):
         self.layers = self.layer_config_dict[config['num_layers']]
         if config['num_layers'] == 18 or config['num_layers'] == 34:
             block = BasicBlock
-        elif config['num_layers'] == 50 or config['num_layers'] == 101 or config['nun_layers'] == 152:
+        elif config['num_layers'] == 50 or config['num_layers'] == 101 or config['num_layers'] == 152:
             block = Bottleneck
         else:
             raise NotImplementedError("num layers '{}' is not in layer config".format(config['num_layers']))
