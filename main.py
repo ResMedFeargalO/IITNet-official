@@ -13,7 +13,7 @@ from torch.utils.data import DataLoader
 from utils import *
 from models.main_models import *
 from loader import EEGDataLoader
-
+from torchmetrics import CohenKappa
 from torch.utils.tensorboard import SummaryWriter
 
 
@@ -84,6 +84,7 @@ class OneFoldTrainer:
             
         writer.add_scalar('Accuracy/Train', 100. * correct / total, epoch)
         writer.add_scalar('Loss/Train', train_loss / (i + 1), epoch)
+        print(cohen_kappa_score(labels.cpu().numpy(), predicted.cpu().numpy()))
             
     @torch.no_grad()
     def evaluate(self, mode, epoch=0):
@@ -137,6 +138,8 @@ class OneFoldTrainer:
 
         return y_true, y_pred
 
+
+from sklearn.metrics import cohen_kappa_score
 def main():
     warnings.filterwarnings("ignore", category=DeprecationWarning) 
     warnings.filterwarnings("ignore", category=UserWarning) 
@@ -162,14 +165,18 @@ def main():
     Y_true = np.zeros(0)
     Y_pred = np.zeros((0, config['num_classes']))
 
-    for fold in range(1, config['n_splits'] + 1):
-        trainer = OneFoldTrainer(args, fold, config)
-        y_true, y_pred = trainer.run()
-        Y_true = np.concatenate([Y_true, y_true])
-        Y_pred = np.concatenate([Y_pred, y_pred])
-    
-        summarize_result(config, fold, Y_true, Y_pred)
-    
+    # #for fold in range(1, config['n_splits'] + 1):
+    fold=1
+    trainer = OneFoldTrainer(args, fold, config)
+    y_true, y_pred = trainer.run()
+    Y_true = np.concatenate([Y_true, y_true])
+    Y_pred = np.concatenate([Y_pred, y_pred])
+
+    summarize_result(config, fold, Y_true, Y_pred)
+
+
+# Plot a few series from the dataset
+#plot_batch_from_dataset(dataset)
 
 if __name__ == "__main__":
     main()

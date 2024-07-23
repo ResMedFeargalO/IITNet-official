@@ -18,7 +18,6 @@
     "learning_rate": 0.005,
     "weight_decay": 0.000001,
 
-
     "init_weights": 1,
     "n_anchor": 1
 }

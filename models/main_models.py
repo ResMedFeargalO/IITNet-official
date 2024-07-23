@@ -31,7 +31,7 @@ class PlainLSTM(nn.Module):
         self.num_classes = num_classes
         self.bidirectional = config['bidirectional']
 
-        self.input_dim = 15#128
+        self.input_dim = 9#7#15#128
 
         # architecture
         #self.lstm = nn.LSTM(self.input_dim, self.hidden_dim, batch_first=True, num_layers=self.num_layers, bidirectional=config['bidirectional'])

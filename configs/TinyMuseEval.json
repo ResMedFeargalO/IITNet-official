@@ -1,0 +1,27 @@
+{
+    "max_epochs": 500,
+    "dataset": "None",
+    "signal_type": "",
+    "Fs_in":32,
+    "sampling_rate": 50,
+    "seq_len": 1,
+    "target_idx": -1,
+    "n_splits": 1,
+
+    "hidden_dim": 128,
+    "batch_size": 256,
+    "patience": 10,
+    "num_layers": 50,
+    "dropout_rate": 0.5,
+    "num_classes": 5,
+    "early_stopping_mode": "min",
+    "bidirectional": false,
+    "learning_rate": 0.005,
+    "weight_decay": 0.000001,
+
+
+    "init_weights": 1,
+    "n_anchor": 1,
+
+    "preproc":1
+}
